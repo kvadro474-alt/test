@@ -3,154 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Тест: Токарная обработка</title>
+    <title>Итоговый тест: 7 класс</title>
     <style>
-        /* Базовые стили */
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; padding: 10px; display: flex; justify-content: center; margin: 0; }
-        #quiz-card { background: white; max-width: 750px; width: 100%; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        :root { --primary: #1a73e8; --success: #27ae60; --danger: #d32f2f; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        #quiz-card { background: white; max-width: 700px; width: 100%; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
         
-        /* Крупные элементы для мобильных */
-        h1 { font-size: 1.5rem; color: #1a73e8; text-align: center; }
-        .question { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 5px solid #1a73e8; border-radius: 4px; font-size: 1rem; }
+        /* Круговая шкала */
+        .circle-container { display: flex; justify-content: center; align-items: center; margin: 20px 0; position: relative; }
+        .progress-ring { transform: rotate(-90deg); }
+        .progress-ring__circle { stroke-dasharray: 314; stroke-dashoffset: 314; transition: stroke-dashoffset 1.5s ease; stroke-linecap: round; }
+        .score-text { position: absolute; font-size: 2.2rem; font-weight: bold; text-align: center; }
+        .score-text span { display: block; font-size: 0.8rem; color: #666; font-weight: normal; }
+
+        /* Элементы теста */
+        .question { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; }
+        label { display: block; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; }
+        input[type="radio"] { transform: scale(1.2); margin-right: 10px; }
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         
-        /* Удобные переключатели (Radio) */
-        label { display: block; padding: 12px 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        label:active { background: #e8f0fe; transform: scale(0.98); }
-        input[type="radio"] { transform: scale(1.3); margin-right: 10px; }
+        /* Сравнение */
+        .comp-bar { height: 10px; background: #eee; border-radius: 5px; margin: 20px 0; position: relative; }
+        .comp-point { width: 4px; height: 20px; background: #333; position: absolute; top: -5px; transition: 1s; }
 
-        /* Поля ввода */
-        input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        
-        /* Кнопки */
-        button { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; -webkit-tap-highlight-color: transparent; }
-        button:active { background: #1557b0; }
-
-        /* Предупреждения */
-        .warning { background: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 20px; font-size: 0.9rem; }
-        
-        /* Блокировка (Анти-чит) */
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; text-align: center; padding: 50px 20px; box-sizing: border-box; }
-
-        /* Адаптация под мелкие экраны */
-        @media (max-width: 480px) {
-            #quiz-card { padding: 15px; border-radius: 0; box-shadow: none; }
-            h1 { font-size: 1.2rem; }
-            .question { font-size: 0.95rem; padding: 10px; }
-            label { font-size: 0.9rem; }
-        }
-
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; text-align: center; padding-top: 100px; }
         .hidden { display: none; }
-        .correct { color: #27ae60; font-weight: bold; }
-        .wrong { color: #d32f2f; font-weight: bold; }
+        .review-item { margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="color: red;">ВНИМАНИЕ!</h1>
-    <p>Вы покинули вкладку теста. Это зафиксировано учителем.</p>
-    <button onclick="document.getElementById('overlay').style.display='none'">Вернуться</button>
+    <h1 style="color:red">ВНИМАНИЕ!</h1>
+    <p>Вы покинули вкладку теста. Попытка фиксируется!</p>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="width:200px">Вернуться</button>
 </div>
 
 <div id="quiz-card">
     <div id="step1">
-        <h1>Вход в систему</h1>
-        <input type="text" id="name" placeholder="Фамилия и Имя" required>
-        <div class="warning">⚠️ Не закрывайте браузер и не отвечайте на звонки! Любой выход из теста будет отмечен в таблице.</div>
-        <button onclick="startTest()">Начать тест</button>
+        <h1 style="text-align:center">🔩 Контрольный тест</h1>
+        <div style="background:#fff3cd; color:#856404; padding:15px; border-radius:10px; border:1px solid #ffeeba; margin-bottom:20px;">
+            <strong>ВНИМАНИЕ!</strong><br>
+            1. Тест содержит 20 вопросов.<br>
+            2. За каждый ответ — 0.5 балла (Макс: 10).<br>
+            3. <b>Любой выход из вкладки фиксируется в отчете!</b>
+        </div>
+        <input type="text" id="name" placeholder="Введите Фамилию и Имя" style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box;">
+        <button onclick="startTest()">Начать выполнение</button>
     </div>
 
     <div id="step2" class="hidden">
         <div id="questions-list"></div>
-        <button onclick="sendResults()">Завершить работу</button>
+        <button onclick="calculateResults()">Завершить работу</button>
     </div>
 
-    <div id="results-screen" class="hidden">
-        <h2>Результат: <span id="final-score"></span></h2>
-        <div id="review-area"></div>
-        <button onclick="location.reload()">На главную</button>
+    <div id="step3" class="hidden">
+        <h2 style="text-align:center">Результат отправлен</h2>
+        <div class="circle-container">
+            <svg width="120" height="120" class="progress-ring">
+                <circle stroke="#eee" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                <circle id="circle" stroke="var(--success)" stroke-width="8" fill="transparent" r="50" cx="60" cy="60" class="progress-ring__circle"/>
+            </svg>
+            <div class="score-text"><span id="res-grade">0</span><span>из 10 баллов</span></div>
+        </div>
+        <div style="text-align:center; font-weight:bold" id="rank"></div>
+        <div class="comp-bar"><div id="point" class="comp-point"></div></div>
+        <p style="text-align:center; font-size:0.8rem; color:#888">Ваша позиция на шкале успеваемости</p>
+        
+        <h3 style="margin-top:30px">Разбор ответов:</h3>
+        <div id="review"></div>
+        <button onclick="location.reload()" style="background:#666; margin-top:20px">Закрыть</button>
     </div>
 </div>
 
 <script>
     const scriptUrl = "https://script.google.com/macros/s/AKfycbxn7Cr8CVsrXJobEN1CJWBSGUOAq2PdtjR3Hfxia0mCkvTVkA0jK4eS7sHrwoCVlopW/exec";
     let cheats = 0;
+    window.onblur = () => { cheats++; document.getElementById('overlay').style.display='block'; };
 
-    // Детектор ухода со страницы (работает и на телефонах при сворачивании)
-    window.onblur = function() {
-        cheats++;
-        document.getElementById('overlay').style.display = 'block';
-    };
-
-    const quizData = [
-        { q: "Какую форму приобретает затачиваемый карандаш?", a: ["Цилиндрическую", "Коническую", "Шарообразную", "Винтовую"], c: 1 },
-        { q: "Что называют «сердцем» токарного станка?", a: ["Переднюю бабку", "Шпиндель", "Электродвигатель", "Станину"], c: 2 },
-        { q: "Для чего служит задняя бабка?", a: ["Для вращения", "Для опоры конца длинных деталей", "Для резца", "Для смазки"], c: 1 },
-        { q: "Как называется вал передней бабки?", a: ["Маховик", "Центр", "Шпиндель", "Подручник"], c: 2 },
-        { q: "С помощью какой передачи идет вращение?", a: ["Ременная", "Цепная", "Зубчатая", "Прямая"], c: 0 },
-        { q: "Какой узел является опорой для резца?", a: ["Станина", "Каретка", "Подручник", "Кожух"], c: 2 },
-        { q: "Как называются изделия с переходами разного размера?", a: ["Фасонные", "Линейные", "Профильные", "Грубые"], c: 0 },
-        { q: "Что защищает рабочего от ремня?", a: ["Очки", "Кожух", "Подручник", "Пускатель"], c: 1 },
-        { q: "Какая стамеска для черновой обработки?", a: ["Мейсель", "Рейер (полукруглая)", "Плоская", "Долото"], c: 1 },
+    const questions = [
+        { q: "Форма карандаша после точилки?", a: ["Цилиндрическая", "Коническая", "Шарообразная", "Винтовая"], c: 1 },
+        { q: "«Сердце» токарного станка?", a: ["Станина", "Шпиндель", "Электродвигатель", "Подручник"], c: 2 },
+        { q: "Для чего нужна задняя бабка?", a: ["Вращение", "Опора длинных деталей", "Крепление резца", "Включение"], c: 1 },
+        { q: "Название вала передней бабки?", a: ["Маховик", "Центр", "Шпиндель", "Суппорт"], c: 2 },
+        { q: "Тип передачи в станке?", a: ["Ременная", "Цепная", "Зубчатая", "Прямая"], c: 0 },
+        { q: "Опора для режущего резца?", a: ["Станина", "Каретка", "Подручник", "Кожух"], c: 2 },
+        { q: "Изделия с разным профилем?", a: ["Фасонные", "Линейные", "Профильные", "Грубые"], c: 0 },
+        { q: "Защита от ременной передачи?", a: ["Очки", "Кожух", "Подручник", "Экран"], c: 1 },
+        { q: "Инструмент для черновой обработки?", a: ["Мейсель", "Рейер (полукруглая)", "Плоская", "Долото"], c: 1 },
         { q: "Инструмент для чистовой отделки?", a: ["Мейсель (косая)", "Рейер", "Сверло", "Рашпиль"], c: 0 },
-        { q: "В чем крепят короткие детали малого диаметра?", a: ["Планшайба", "Трезубец", "Патрон", "Маховик"], c: 2 },
-        { q: "В чем крепят короткие детали БОЛЬШОГО диаметра?", a: ["Патрон", "Планшайба", "Трезубец", "Центры"], c: 1 },
-        { q: "Как закрепить длинную заготовку?", a: ["Патрон", "Планшайба", "Трезубец + центр", "Руками"], c: 2 },
-        { q: "Зазор между подручником и деталью:", a: ["0 мм", "2–3 мм", "10–15 мм", "5 см"], c: 1 },
-        { q: "Что делать с подручником при стачивании?", a: ["Ничего", "Отодвинуть", "Подвести ближе", "Снять"], c: 2 },
-        { q: "На какой высоте должен быть станок?", a: ["Пояс", "Уровень локтя", "Плечи", "Колени"], c: 1 },
-        { q: "Действие перед кнопкой «Пуск»:", a: ["Смазка", "Заточка", "Проверка вращения вручную", "Уборка"], c: 2 },
-        { q: "Цвет кнопки ВЫКЛЮЧЕНИЯ станка:", a: ["Черная", "Зеленая", "Красная", "Синяя"], c: 2 },
-        { q: "Запрещено во время работы:", a: ["Смотреть", "Держать резец", "Останавливать заготовку рукой", "Стоять"], c: 2 },
-        { q: "Какими должны быть рукава спецодежды?", a: ["Застегнуты", "Широкие", "Свободные", "Не важно"], c: 0 }
+        { q: "Крепление коротких малых деталей?", a: ["Планшайба", "Трезубец", "Патрон", "Центр"], c: 2 },
+        { q: "Крепление коротких ТОЛСТЫХ деталей?", a: ["Патрон", "Планшайба", "Трезубец", "Центр"], c: 1 },
+        { q: "Крепление длинных заготовок?", a: ["Патрон", "Планшайба", "Трезубец + центр", "Руки"], c: 2 },
+        { q: "Зазор между подручником и деталью?", a: ["0 мм", "2–3 мм", "10 мм", "50 мм"], c: 1 },
+        { q: "Действие с подручником при стачивании?", a: ["Ничего", "Отодвинуть", "Подвести ближе", "Убрать"], c: 2 },
+        { q: "Высота станка для работы?", a: ["Пояс", "Уровень локтя", "Плечи", "Колени"], c: 1 },
+        { q: "Действие ПЕРЕД пуском?", a: ["Смазка", "Заточка", "Прокрутка вручную", "Уборка"], c: 2 },
+        { q: "Цвет кнопки ВЫКЛЮЧЕНИЯ?", a: ["Черный", "Зеленый", "Красный", "Синий"], c: 2 },
+        { q: "Категорически запрещено:", a: ["Смотреть", "Держать резец", "Останавливать рукой", "Стоять"], c: 2 },
+        { q: "Рукава спецодежды должны быть:", a: ["Застегнуты", "Широкие", "Свободные", "Закатаны"], c: 0 }
     ];
 
     function startTest() {
-        if(!document.getElementById('name').value) return alert("Введите имя!");
+        if(!document.getElementById('name').value) return alert("Введите имя");
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
-        window.scrollTo(0,0);
-        
-        let html = "";
-        quizData.forEach((item, i) => {
-            html += `<div class="question"><p>${i+1}. ${item.q}</p>`;
-            item.a.forEach((opt, idx) => {
-                html += `<label><input type="radio" name="q${i}" value="${idx}"> ${opt}</label>`;
-            });
-            html += `</div>`;
+        let h = "";
+        questions.forEach((v, i) => {
+            h += `<div class="question"><p>${i+1}. ${v.q}</p>`;
+            v.a.forEach((opt, idx) => h += `<label><input type="radio" name="q${i}" value="${idx}"> ${opt}</label>`);
+            h += `</div>`;
         });
-        document.getElementById('questions-list').innerHTML = html;
+        document.getElementById('questions-list').innerHTML = h;
     }
 
-    function sendResults() {
-        let score = 0;
-        let reviewHtml = "";
-        quizData.forEach((item, i) => {
+    function calculateResults() {
+        let correct = 0, rev = "";
+        questions.forEach((v, i) => {
             let sel = document.querySelector(`input[name="q${i}"]:checked`);
-            let selIdx = sel ? parseInt(sel.value) : -1;
-            if(selIdx === item.c) {
-                score++;
-                reviewHtml += `<p>✅ Вопрос ${i+1}: Верно.</p>`;
-            } else {
-                reviewHtml += `<p>❌ Вопрос ${i+1}: <span class="wrong">Ошибка.</span> Правильно: ${item.a[item.c]}</p>`;
-            }
+            let idx = sel ? parseInt(sel.value) : -1;
+            if(idx === v.c) { correct++; rev += `<div class="review-item">✅ Вопрос ${i+1}: Верно</div>`; }
+            else { rev += `<div class="review-item">❌ Вопрос ${i+1}: Ошибка. Правильно: <b>${v.a[v.c]}</b></div>`; }
         });
 
-        fetch(scriptUrl, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({
-                name: document.getElementById('name').value,
-                score: score + "/20",
-                cheating: "Выходов: " + cheats
-            })
-        });
-
+        let grade = correct * 0.5;
         document.getElementById('step2').classList.add('hidden');
-        document.getElementById('results-screen').classList.remove('hidden');
-        document.getElementById('final-score').innerText = score + " из 20";
-        document.getElementById('review-area').innerHTML = reviewHtml;
-        window.scrollTo(0,0);
+        document.getElementById('step3').classList.remove('hidden');
+        document.getElementById('res-grade').innerText = grade.toFixed(1);
+        document.getElementById('review').innerHTML = rev;
+
+        // Шкала и кольцо
+        let circle = document.getElementById('circle');
+        circle.style.strokeDashoffset = 314 - (grade / 10 * 314);
+        document.getElementById('point').style.left = (grade * 10) + "%";
+        
+        let ranks = ["Новичок", "Любитель", "Мастер", "Профи!"];
+        document.getElementById('rank').innerText = "Статус: " + ranks[Math.floor(grade/3)] || "Новичок";
+
+        fetch(scriptUrl, { method: "POST", mode: "no-cors", body: JSON.stringify({ name: document.getElementById('name').value, score: grade + "/10", cheating: "Выходов: " + cheats }) });
     }
 </script>
 </body>
