@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контрольный тест: Токарная обработка</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        #quiz-card { background: white; max-width: 700px; width: 100%; padding: 30px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; text-align: center; font-size: 24px; }
+        .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 20px; font-weight: bold; }
+        .question { margin-bottom: 25px; padding: 15px; border-left: 5px solid #1a73e8; background: #f8f9fa; }
+        .question p { font-weight: 600; margin-top: 0; }
+        input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #1557b0; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 10000; text-align: center; padding-top: 150px; }
+        .hidden { display: none; }
+        label { display: block; padding: 5px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="overlay">
+    <h1 style="color: red; font-size: 40px;">ВНИМАНИЕ!</h1>
+    <h2>Вы покинули вкладку теста!</h2>
+    <p>Это зафиксировано в отчете для учителя.</p>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="width: 200px; padding: 10px;">Вернуться</button>
+</div>
+
+<div id="quiz-card">
+    <div id="step1">
+        <h1>Вход в систему тестирования</h1>
+        <input type="text" id="studentName" placeholder="Фамилия и Имя" required>
+        <input type="text" id="studentClass" placeholder="Класс (например, 7А)" required>
+        <div class="warning">⚠️ ПРЕДУПРЕЖДЕНИЕ: Все переключения вкладок фиксируются. Не пытайтесь сворачивать браузер.</div>
+        <button onclick="startTest()">Начать тест</button>
+    </div>
+
+    <div id="step2" class="hidden">
+        <h1>Тест: Механическая обработка древесины</h1>
+        <div id="questions-list"></div>
+        <button onclick="sendResults()">Завершить и отправить результаты</button>
+    </div>
+</div>
+
+<script>
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxn7Cr8CVsrXJobEN1CJWBSGUOAq2PdtjR3Hfxia0mCkvTVkA0jK4eS7sHrwoCVlopW/exec";
+    let cheats = 0;
+    
+    window.onblur = function() {
+        cheats++;
+        document.getElementById('overlay').style.display = 'block';
+    };
+
+    const questions = [
+        { q: "1. Какую форму приобретает карандаш при заточке в точилке?", a: ["Коническую", "Цилиндрическую", "Шарообразную"], c: 0 },
+        { q: "2. Что называют «сердцем» токарного станка?", a: ["Станину", "Электродвигатель", "Шпиндель"], c: 1 },
+        { q: "3. Для чего нужна задняя бабка?", a: ["Для вращения детали", "Для опоры правого конца длинных деталей", "Для крепления резца"], c: 1 },
+        { q: "4. Как называется вал передней бабки, передающий вращение заготовке?", a: ["Маховик", "Шпиндель", "Суппорт"], c: 1 },
+        { q: "5. Какой инструмент используется для черновой (начальной) обработки?", a: ["Мейсель (косой)", "Рейер (полукруглый)", "Плоская стамеска"], c: 1 },
+        { q: "6. Какой инструмент нужен для чистовой отделки?", a: ["Мейсель", "Рейер", "Сверло"], c: 0 },
+        { q: "7. Расстояние (зазор) между подручником и заготовкой должно быть:", a: ["5-10 мм", "2-3 мм", "0 мм"], c: 1 },
+        { q: "8. Как крепят короткие заготовки большого диаметра?", a: ["В патроне", "В планшайбе", "В трезубце"], c: 1 },
+        { q: "9. Какой узел служит опорой для режущего инструмента?", a: ["Подручник", "Передняя бабка", "Кожух"], c: 0 },
+        { q: "10. Можно ли останавливать заготовку руками?", a: ["Да", "Нет, категорически запрещено", "Только если она медленная"], c: 1 },
+        { q: "11. Какого цвета кнопка 'ВЫКЛЮЧИТЬ' на пускателе?", a: ["Черная", "Красная", "Зеленая"], c: 1 },
+        { q: "12. Что нужно сделать ПЕРЕД включением станка?", a: ["Сразу точить", "Провернуть деталь вручную на 2-3 оборота", "Уйти за учителем"], c: 1 },
+        { q: "13. Каким способом передается движение от мотора к шпинделю?", a: ["Цепью", "Ремнем", "Зубчатыми колесами"], c: 1 },
+        { q: "14. Изделия с переходами разного размера называются:", a: ["Фасонными", "Квадратными", "Линейными"], c: 0 },
+        { q: "15. На какой высоте должен располагаться центр станка относительно токаря?", a: ["На уровне плеч", "На уровне локтя", "На уровне колен"], c: 1 },
+        { q: "16. Для чего используется трезубец?", a: ["Для крепления длинных деталей", "Для красоты", "Для сверления"], c: 0 },
+        { q: "17. Что нужно делать с подручником по мере стачивания детали?", a: ["Ничего", "Отодвигать", "Подводить ближе (после остановки)"], c: 2 },
+        { q: "18. Разрешено ли работать с незастегнутыми рукавами?", a: ["Да", "Нет", "Если жарко, то да"], c: 1 },
+        { q: "19. Можно ли измерять деталь, пока она вращается?", a: ["Да", "Нет", "Только линейкой"], c: 1 },
+        { q: "20. Что защищает рабочего от ременной передачи?", a: ["Очки", "Кожух", "Перчатки"], c: 1 }
+    ];
+
+    function startTest() {
+        if(!document.getElementById('studentName').value || !document.getElementById('studentClass').value) return alert("Введите данные!");
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        
+        const list = document.getElementById('questions-list');
+        questions.forEach((item, index) => {
+            let html = `<div class="question"><p>${item.q}</p>`;
+            item.a.forEach((opt, i) => {
+                html += `<label><input type="radio" name="v${index}" value="${i}"> ${opt}</label>`;
+            });
+            html += `</div>`;
+            list.innerHTML += html;
+        });
+    }
+
+    function sendResults() {
+        let score = 0;
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="v${index}"]:checked`);
+            if(selected && selected.value == item.c) score++;
+        });
+
+        const data = {
+            name: document.getElementById('studentName').value + " (" + document.getElementById('studentClass').value + ")",
+            score: score + " из 20",
+            cheating: "Покидал вкладку: " + cheats + " раз"
+        };
+
+        fetch(scriptUrl, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(data)
+        }).then(() => {
+            alert("Результаты успешно отправлены учителю!");
+            window.location.reload();
+        }).catch(() => alert("Ошибка! Проверьте интернет или настройки доступа скрипта."));
+    }
+</script>
+</body>
+</html>
